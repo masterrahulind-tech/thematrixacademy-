@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Matrix Academy & Matrix Library | CBSE School, Muzaffarpur</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0a1628;--navy2:#122040;--gold:#c9a84c;--gold2:#e8c96a;
+  --white:#ffffff;--off-white:#f8f5ee;--gray:#e8e4da;
+  --text-dark:#1a1a2e;--text-muted:#6b7280;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--text-dark);overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--navy);}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px;}
+
+/* IMAGE LOADING SYSTEM */
+.img-wrap{position:relative;overflow:hidden;background:#1a2a4a;}
+.img-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease,opacity .4s ease;opacity:0;}
+.img-wrap img.loaded{opacity:1;}
+.img-wrap img.error-state{opacity:0;}
+.img-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#0d1f3c,#1a2e50);transition:opacity .4s ease;}
+.img-placeholder.hidden{opacity:0;pointer-events:none;}
+.img-placeholder .ph-icon{font-size:36px;opacity:0.5;}
+.img-placeholder .ph-text{font-size:12px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;}
+.img-shimmer{position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(201,168,76,0.06) 50%,transparent 100%);background-size:200% 100%;animation:shimmer 1.8s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.img-shimmer.done{display:none;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(10,22,40,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,168,76,0.2);padding:0 5%;}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:70px;}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.logo-icon{width:48px;height:48px;border-radius:10px;overflow:hidden;flex-shrink:0;border:1.5px solid rgba(201,168,76,0.35);background:var(--white);}
+.logo-icon img{width:100%;height:100%;object-fit:cover;display:block;}
+.logo-text .name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--white);}
+.logo-text .sub{font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;}
+.nav-links{display:flex;align-items:center;gap:4px;list-style:none;}
+.nav-links a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:13px;font-weight:500;padding:8px 13px;border-radius:6px;transition:all .25s;}
+.nav-links a:hover{color:var(--gold);background:rgba(201,168,76,0.1);}
+.nav-cta{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy)!important;font-weight:700!important;padding:10px 20px!important;border-radius:8px!important;}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,0.4);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;}
+.hamburger span{width:24px;height:2px;background:var(--white);border-radius:2px;}
+.mobile-menu{display:none;position:fixed;top:70px;left:0;right:0;background:var(--navy);padding:20px 5%;z-index:998;border-bottom:1px solid rgba(201,168,76,0.2);}
+.mobile-menu.open{display:block;}
+.mobile-menu a{display:block;color:rgba(255,255,255,0.85);text-decoration:none;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px;}
+
+/* HERO */
+.hero{min-height:100vh;position:relative;overflow:hidden;display:flex;align-items:center;}
+.hero-bg{position:absolute;inset:0;}
+.hero-bg .img-wrap{height:100%;border-radius:0;}
+.hero-bg .img-wrap img{height:100%;}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(105deg,rgba(10,22,40,0.95) 0%,rgba(10,22,40,0.8) 55%,rgba(10,22,40,0.45) 100%);z-index:1;}
+.hero-grid{position:absolute;inset:0;z-index:1;background-image:linear-gradient(rgba(201,168,76,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.04) 1px,transparent 1px);background-size:60px 60px;}
+.hero-content{position:relative;z-index:2;padding:130px 5% 80px;max-width:720px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.35);border-radius:100px;padding:8px 18px;margin-bottom:28px;}
+.hero-badge span{font-size:12px;color:var(--gold);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(38px,5.5vw,68px);font-weight:900;color:var(--white);line-height:1.1;margin-bottom:20px;}
+.hero h1 em{font-style:normal;color:var(--gold);}
+.hero p{font-size:17px;color:rgba(255,255,255,0.7);line-height:1.75;max-width:540px;margin-bottom:36px;}
+.hero-btns{display:flex;gap:16px;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);font-weight:700;font-size:15px;padding:15px 32px;border-radius:10px;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:all .3s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(201,168,76,0.5);}
+.btn-outline{background:rgba(255,255,255,0.08);color:var(--white);font-weight:600;font-size:15px;padding:15px 32px;border-radius:10px;border:1px solid rgba(255,255,255,0.3);cursor:pointer;text-decoration:none;display:inline-block;transition:all .3s;backdrop-filter:blur(8px);}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+.hero-stats{display:flex;gap:16px;margin-top:48px;flex-wrap:wrap;}
+.hero-stat{background:rgba(255,255,255,0.07);border:1px solid rgba(201,168,76,0.2);border-radius:16px;padding:18px 24px;backdrop-filter:blur(10px);}
+.hero-stat .num{font-family:'Playfair Display',serif;font-size:34px;font-weight:900;color:var(--gold);line-height:1;}
+.hero-stat .label{font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;text-transform:uppercase;letter-spacing:1px;}
+.scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,0.3);font-size:11px;letter-spacing:2px;text-transform:uppercase;}
+.scroll-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:bounce 2s infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* BANNER */
+.banner{background:linear-gradient(135deg,var(--gold),var(--gold2));padding:13px 5%;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;}
+.banner p{font-weight:700;color:var(--navy);font-size:15px;}
+.banner a{background:var(--navy);color:var(--gold);font-weight:700;font-size:13px;padding:8px 20px;border-radius:7px;text-decoration:none;white-space:nowrap;}
+
+/* SECTIONS */
+section{padding:88px 5%;}
+.stag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);padding:6px 16px;border-radius:100px;margin-bottom:16px;}
+.stitle{font-family:'Playfair Display',serif;font-size:clamp(28px,3.8vw,44px);font-weight:800;color:var(--navy);line-height:1.15;margin-bottom:14px;}
+.stitle em{font-style:normal;color:var(--gold);}
+.ssub{font-size:16px;color:var(--text-muted);line-height:1.7;max-width:560px;}
+
+/* ABOUT */
+.about{background:var(--white);}
+.about-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;margin-top:60px;}
+.about-img-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.aig-main{grid-column:1/3;border-radius:20px;overflow:hidden;height:280px;}
+.aig-main .img-wrap{height:100%;border-radius:20px;}
+.aig-main .img-wrap img{height:100%;}
+.aig-sub{border-radius:14px;overflow:hidden;height:180px;position:relative;}
+.aig-sub .img-wrap{height:100%;border-radius:14px;}
+.aig-sub .img-wrap img{height:100%;}
+.about-badge{position:absolute;bottom:14px;right:14px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border-radius:12px;padding:12px 16px;text-align:center;box-shadow:0 10px 28px rgba(201,168,76,0.4);z-index:2;}
+.about-badge .num{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;line-height:1;}
+.about-badge .txt{font-size:10px;font-weight:700;letter-spacing:0.5px;}
+.vm-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0;}
+.vm-card{background:var(--off-white);border-radius:12px;padding:20px;border-left:3px solid var(--gold);}
+.vm-card h4{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:5px;}
+.vm-card p{font-size:13px;color:var(--text-muted);line-height:1.6;}
+.why-list{display:flex;flex-direction:column;gap:10px;margin-top:20px;}
+.why-item{display:flex;align-items:center;gap:12px;font-size:14px;}
+.check{width:22px;height:22px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--navy);font-weight:900;flex-shrink:0;}
+
+/* HIGHLIGHTS */
+.highlights{background:var(--off-white);}
+.hl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:50px;}
+.hl-card{background:var(--white);border:1px solid var(--gray);border-radius:18px;padding:28px 22px;transition:all .3s;position:relative;overflow:hidden;}
+.hl-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold2));transform:scaleX(0);transition:transform .3s;transform-origin:left;}
+.hl-card:hover::before{transform:scaleX(1);}
+.hl-card:hover{transform:translateY(-4px);box-shadow:0 18px 45px rgba(0,0,0,0.08);}
+.hl-icon{width:48px;height:48px;background:rgba(201,168,76,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:15px;}
+.hl-card h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:7px;}
+.hl-card p{font-size:13.5px;color:var(--text-muted);line-height:1.65;}
+
+/* ACADEMICS */
+.academics{background:var(--navy);position:relative;overflow:hidden;}
+.academics-header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;margin-bottom:46px;}
+.classes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.class-card{border-radius:20px;overflow:hidden;transition:all .3s;}
+.class-card:hover{transform:translateY(-5px);box-shadow:0 24px 55px rgba(0,0,0,0.5);}
+.class-img-box{height:195px;position:relative;}
+.class-img-box .img-wrap{height:100%;border-radius:0;}
+.class-img-box .img-wrap img{height:100%;}
+.class-img-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,22,40,0.15),rgba(10,22,40,0.7));z-index:1;}
+.grade-badge{position:absolute;top:14px;left:14px;z-index:2;background:rgba(201,168,76,0.92);color:var(--navy);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px;}
+.class-body{background:linear-gradient(160deg,#0f2050,#091828);padding:24px;}
+.class-body h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:var(--white);margin-bottom:9px;}
+.class-body p{font-size:13px;color:rgba(255,255,255,0.58);line-height:1.65;margin-bottom:16px;}
+.class-features{display:flex;flex-direction:column;gap:7px;}
+.class-features li{list-style:none;font-size:12.5px;color:rgba(255,255,255,0.75);padding-left:16px;position:relative;}
+.class-features li::before{content:'▸';position:absolute;left:0;color:var(--gold);}
+
+/* COACHING */
+.coaching{background:var(--off-white);}
+.coaching-layout{display:grid;grid-template-columns:1fr 1fr;gap:58px;margin-top:50px;}
+.coaching-img-col{display:flex;flex-direction:column;gap:14px;}
+.coaching-img-main{border-radius:20px;overflow:hidden;height:256px;position:relative;}
+.coaching-img-main .img-wrap{height:100%;border-radius:20px;}
+.coaching-img-main .img-wrap img{height:100%;}
+.ci-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(10,22,40,0.7));border-radius:20px;pointer-events:none;z-index:1;}
+.ci-label{position:absolute;bottom:18px;left:18px;z-index:2;background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;padding:5px 14px;border-radius:100px;letter-spacing:1px;text-transform:uppercase;}
+.coaching-img-pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.ci-img-box{border-radius:14px;overflow:hidden;height:155px;}
+.ci-img-box .img-wrap{height:100%;border-radius:14px;}
+.ci-img-box .img-wrap img{height:100%;}
+.coaching-caption{background:var(--navy);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px;}
+.coaching-caption .ico{font-size:26px;}
+.coaching-caption h4{font-family:'Playfair Display',serif;font-size:16px;color:var(--white);font-weight:700;}
+.coaching-caption p{font-size:12px;color:rgba(255,255,255,0.45);margin-top:2px;}
+.coaching-cards{display:flex;flex-direction:column;gap:16px;}
+.coaching-card{background:var(--white);border-radius:16px;padding:22px;display:flex;gap:16px;align-items:flex-start;border:1px solid var(--gray);transition:all .3s;}
+.coaching-card:hover{border-color:var(--gold);transform:translateX(4px);box-shadow:0 8px 24px rgba(0,0,0,0.07);}
+.coaching-card.feat{background:var(--navy);border-color:var(--gold);}
+.cc-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.coaching-card:not(.feat) .cc-icon{background:rgba(201,168,76,0.1);}
+.coaching-card.feat .cc-icon{background:rgba(201,168,76,0.15);}
+.cc-content h4{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;margin-bottom:5px;}
+.coaching-card:not(.feat) .cc-content h4{color:var(--navy);}
+.coaching-card.feat .cc-content h4{color:var(--white);}
+.cc-content p{font-size:13px;line-height:1.6;}
+.coaching-card:not(.feat) .cc-content p{color:var(--text-muted);}
+.coaching-card.feat .cc-content p{color:rgba(255,255,255,0.55);}
+.cc-tag{display:inline-block;background:var(--gold);color:var(--navy);font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;margin-top:7px;letter-spacing:1px;text-transform:uppercase;}
+.enroll-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);font-weight:700;font-size:14px;padding:15px;border-radius:12px;border:none;cursor:pointer;transition:all .3s;}
+.enroll-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(201,168,76,0.4);}
+.batch-info{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.bi-box{background:rgba(255,255,255,0.05);border-radius:10px;padding:13px;}
+.bi-box p{font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
+.bi-box span{font-size:15px;color:var(--white);font-weight:600;}
+
+/* LIBRARY */
+.library{background:var(--white);}
+.library-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;margin-top:50px;}
+.lib-img-stack{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.lib-img-main{grid-column:1/3;border-radius:20px;overflow:hidden;height:300px;}
+.lib-img-main .img-wrap{height:100%;border-radius:20px;}
+.lib-img-main .img-wrap img{height:100%;}
+.lib-img-sub{border-radius:14px;overflow:hidden;height:175px;}
+.lib-img-sub .img-wrap{height:100%;border-radius:14px;}
+.lib-img-sub .img-wrap img{height:100%;}
+.lib-feats{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.lib-feat{background:var(--off-white);border-radius:14px;padding:20px 16px;transition:all .3s;}
+.lib-feat:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(0,0,0,0.06);}
+.lib-feat .icon{font-size:24px;margin-bottom:9px;}
+.lib-feat h4{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.lib-feat p{font-size:12.5px;color:var(--text-muted);line-height:1.6;}
+.lib-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px;}
+.lib-stat{background:var(--navy);border-radius:12px;padding:16px;text-align:center;}
+.lib-stat .n{font-family:'Playfair Display',serif;font-size:24px;font-weight:800;color:var(--gold);}
+.lib-stat .l{font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+
+/* GALLERY */
+.gallery-sec{background:var(--navy);padding:88px 5%;}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:48px;}
+.g-item{border-radius:16px;overflow:hidden;position:relative;cursor:pointer;}
+.g-item .img-wrap{height:215px;border-radius:16px;}
+.g-item .img-wrap img{height:100%;}
+.g-item.tall .img-wrap{height:296px;}
+.g-hover{position:absolute;inset:0;background:rgba(10,22,40,0);transition:background .3s;display:flex;align-items:center;justify-content:center;z-index:2;}
+.g-item:hover .g-hover{background:rgba(10,22,40,0.52);}
+.g-hover span{color:var(--white);font-size:26px;opacity:0;transition:opacity .3s;font-weight:300;}
+.g-item:hover .g-hover span{opacity:1;}
+.g-label{position:absolute;bottom:0;left:0;right:0;padding:14px;background:linear-gradient(0deg,rgba(10,22,40,0.9),transparent);color:var(--white);font-size:12.5px;font-weight:600;transform:translateY(100%);transition:transform .3s;z-index:2;}
+.g-item:hover .g-label{transform:translateY(0);}
+
+/* TESTIMONIALS */
+.testimonials{background:var(--off-white);}
+.rating-banner{display:flex;align-items:center;gap:30px;margin:40px 0;padding:30px 36px;border-radius:20px;position:relative;overflow:hidden;min-height:140px;}
+.rating-banner .img-wrap{position:absolute;inset:0;border-radius:20px;}
+.rating-banner .img-wrap img{height:100%;}
+.rating-overlay{position:absolute;inset:0;background:rgba(10,22,40,0.88);border-radius:20px;z-index:1;}
+.rating-content{position:relative;z-index:2;display:flex;align-items:center;gap:30px;flex-wrap:wrap;}
+.rating-big{font-family:'Playfair Display',serif;font-size:70px;font-weight:900;color:var(--gold);line-height:1;}
+.rating-info .stars{color:var(--gold);font-size:22px;letter-spacing:2px;margin-bottom:6px;}
+.rating-info p{color:rgba(255,255,255,0.65);font-size:14px;}
+.rating-info h4{color:var(--white);font-family:'Playfair Display',serif;font-size:20px;font-weight:800;}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.testi-card{background:var(--white);border-radius:16px;padding:24px;border:1px solid var(--gray);transition:all .3s;}
+.testi-card:hover{box-shadow:0 14px 38px rgba(0,0,0,0.08);transform:translateY(-3px);}
+.testi-stars{color:var(--gold);font-size:14px;margin-bottom:12px;}
+.testi-text{font-size:13.5px;color:var(--text-dark);line-height:1.7;margin-bottom:16px;font-style:italic;}
+.testi-author{display:flex;align-items:center;gap:12px;}
+.testi-av{width:38px;height:38px;background:linear-gradient(135deg,var(--navy),var(--gold));border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--white);font-weight:700;font-size:14px;}
+.testi-name{font-weight:700;font-size:13px;color:var(--navy);}
+.testi-role{font-size:11.5px;color:var(--text-muted);}
+
+/* NOTICE */
+.notice{background:var(--off-white);}
+.notice-layout{display:grid;grid-template-columns:1fr 2fr;gap:34px;margin-top:48px;}
+.notice-sidebar{background:var(--navy);border-radius:20px;padding:26px;}
+.notice-sidebar h3{font-family:'Playfair Display',serif;font-size:18px;color:var(--white);margin-bottom:16px;}
+.n-item{padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;gap:10px;align-items:flex-start;}
+.n-item:last-child{border-bottom:none;}
+.n-dot{width:7px;height:7px;background:var(--gold);border-radius:50%;margin-top:5px;flex-shrink:0;}
+.n-item p{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;}
+.n-item span{font-size:11px;color:rgba(255,255,255,0.3);display:block;margin-top:2px;}
+.events-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.ev-card{background:var(--white);border-radius:14px;padding:20px;border:1px solid var(--gray);}
+.ev-date{display:inline-flex;flex-direction:column;align-items:center;background:var(--gold);color:var(--navy);border-radius:10px;padding:7px 12px;margin-bottom:11px;}
+.ev-date .day{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;line-height:1;}
+.ev-date .mon{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.ev-card h4{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.ev-card p{font-size:12px;color:var(--text-muted);}
+
+/* CONTACT */
+.contact{background:var(--navy);position:relative;overflow:hidden;}
+.contact .img-wrap{position:absolute;inset:0;border-radius:0;opacity:0.05;}
+.contact .img-wrap img{height:100%;}
+.contact-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:50px;position:relative;z-index:1;}
+.contact-form{background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:24px;padding:38px;}
+.contact-form h3{font-family:'Playfair Display',serif;font-size:22px;color:var(--white);font-weight:700;margin-bottom:5px;}
+.contact-form .sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:24px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.fg{margin-bottom:15px;}
+.fg label{display:block;font-size:11px;font-weight:600;color:rgba(255,255,255,0.55);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;}
+.fg input,.fg select{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:13px 16px;color:var(--white);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .25s;}
+.fg input::placeholder{color:rgba(255,255,255,0.28);}
+.fg select option{background:#0a1628;}
+.fg input:focus,.fg select:focus{border-color:var(--gold);}
+.submit-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);font-weight:700;font-size:15px;padding:16px;border-radius:12px;border:none;cursor:pointer;transition:all .3s;margin-top:5px;}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(201,168,76,0.4);}
+.contact-info{display:flex;flex-direction:column;gap:18px;}
+.ci-block{background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.12);border-radius:18px;padding:24px;}
+.ci-block h4{font-family:'Playfair Display',serif;font-size:18px;color:var(--white);font-weight:700;margin-bottom:14px;}
+.ci-item{display:flex;gap:12px;margin-bottom:13px;align-items:flex-start;}
+.ci-ico{width:36px;height:36px;background:rgba(201,168,76,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ci-item div p{font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:2px;text-transform:uppercase;letter-spacing:0.5px;}
+.ci-item div span{font-size:14px;color:var(--white);font-weight:500;}
+.map-box{border-radius:16px;overflow:hidden;height:175px;position:relative;cursor:pointer;}
+.map-box .img-wrap{height:100%;border-radius:16px;}
+.map-box .img-wrap img{height:100%;}
+.map-overlay{position:absolute;inset:0;background:rgba(10,22,40,0.65);z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;transition:background .3s;}
+.map-box:hover .map-overlay{background:rgba(10,22,40,0.5);}
+.map-overlay .mico{font-size:30px;}
+.map-overlay p{color:rgba(255,255,255,0.7);font-size:12.5px;}
+.map-overlay a{color:var(--gold);font-size:13px;font-weight:600;text-decoration:none;}
+.qc{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.qcb{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;transition:all .3s;}
+.qcb.call{background:var(--gold);color:var(--navy);}
+.qcb.wa{background:#25d366;color:var(--white);}
+.qcb:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,0.25);}
+.success-msg{display:none;background:rgba(201,168,76,0.12);border:1px solid var(--gold);border-radius:10px;padding:14px;color:var(--gold);font-size:14px;text-align:center;margin-top:13px;}
+
+/* FOOTER */
+footer{background:#0c0e1a;padding:58px 5% 26px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:46px;margin-bottom:46px;}
+.footer-about{font-size:13px;color:rgba(255,255,255,0.38);line-height:1.8;margin:14px 0;}
+.social-row{display:flex;gap:10px;}
+.social-btn{width:34px;height:34px;background:rgba(255,255,255,0.06);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;text-decoration:none;transition:all .3s;}
+.social-btn:hover{background:rgba(201,168,76,0.15);}
+footer h5{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:16px;}
+footer ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+footer ul li a{color:rgba(255,255,255,0.38);text-decoration:none;font-size:13px;transition:color .25s;}
+footer ul li a:hover{color:var(--gold);}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.footer-bottom p{font-size:12px;color:rgba(255,255,255,0.24);}
+.footer-bottom span{color:var(--gold);}
+
+.whatsapp-float{position:fixed;bottom:28px;right:28px;z-index:999;width:56px;height:56px;background:#25d366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 8px 26px rgba(37,211,102,0.45);text-decoration:none;transition:all .3s;animation:pglow 3s infinite;}
+.whatsapp-float:hover{transform:scale(1.1);}
+@keyframes pglow{0%,100%{box-shadow:0 8px 26px rgba(37,211,102,0.45);}50%{box-shadow:0 8px 36px rgba(37,211,102,0.7),0 0 0 10px rgba(37,211,102,0.1);}}
+
+.fade-in{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+.fade-left{opacity:0;transform:translateX(-26px);transition:opacity .7s ease,transform .7s ease;}
+.fade-left.visible{opacity:1;transform:translateX(0);}
+.fade-right{opacity:0;transform:translateX(26px);transition:opacity .7s ease,transform .7s ease;}
+.fade-right.visible{opacity:1;transform:translateX(0);}
+
+@media(max-width:1024px){
+  .about-layout,.coaching-layout,.library-layout,.contact-layout,.notice-layout,.footer-grid{grid-template-columns:1fr;}
+  .classes-grid,.testi-grid,.events-grid,.gallery-grid{grid-template-columns:1fr 1fr;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:768px){
+  .nav-links{display:none;}.hamburger{display:flex;}
+  .hero h1{font-size:34px;}
+  .classes-grid,.testi-grid,.events-grid,.gallery-grid,.coaching-img-pair,.form-row,.vm-grid,.qc,.lib-stats-row,.lib-feats,.batch-info{grid-template-columns:1fr;}
+  .aig-main{grid-column:1;}.footer-grid{grid-template-columns:1fr;}
+  .footer-bottom,.rating-content{flex-direction:column;text-align:center;}
+  .hero-stats{flex-direction:column;gap:12px;}
+  .lib-img-main .img-wrap{height:220px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#home" class="logo">
+      <div class="logo-icon"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxIREhUTExIVFhUVGRcYGBYYFxgZFhgYFxkaGRcfGBghHSghGSIlHBUaITEjJSorLi4wFx8zODcsNygtLisBCgoKDg0OGxAQGy0mHyUuMS0tLS0tLS0tLy0tLS0tLS8tLS0tLS0tLS0tLS0tLS0tLS0tLS0vLS0tLS0tLS0tLf/AABEIAOEA4QMBEQACEQEDEQH/xAAcAAEAAgMBAQEAAAAAAAAAAAAABQYCBAcDAQj/xABHEAACAQMDAQUEBwQHBgYDAAABAgMABBEFEiExBhNBUWEHIjKBFCNCUnGRoTNictEkU3OCkrHBNGOTorLSFUNEwtPxFyU1/8QAGgEBAAMBAQEAAAAAAAAAAAAAAAECAwQFBv/EADQRAAIBAgUBBQgCAQUBAAAAAAABAgMRBBIhMUFRBSJhcYETMkKRocHR8LHhUiMkYnLxBv/aAAwDAQACEQMRAD8A7jQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUB//Z" alt="The Matrix Academy Logo" loading="eager"/></div>
+      <div class="logo-text">
+        <div class="name">The Matrix Academy</div>
+        <div class="sub">& Matrix Library</div>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#academics">Academics</a></li>
+      <li><a href="#coaching">Coaching</a></li>
+      <li><a href="#library">Library</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#contact" class="nav-cta">Admissions Open</a></li>
+    </ul>
+    <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about" onclick="toggleMenu()">About</a>
+  <a href="#academics" onclick="toggleMenu()">Academics</a>
+  <a href="#coaching" onclick="toggleMenu()">Coaching</a>
+  <a href="#library" onclick="toggleMenu()">Library</a>
+  <a href="#gallery" onclick="toggleMenu()">Gallery</a>
+  <a href="#results" onclick="toggleMenu()">Results</a>
+  <a href="#contact" onclick="toggleMenu()">Admissions</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg">
+    <div class="img-wrap">
+      <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">🏫</span><span class="ph-text">Loading…</span></div>
+      <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1800&q=80" alt="School classroom" loading="eager" decoding="async"
+        onload="imgLoaded(this)" onerror="imgError(this,'🏫','School')"/>
+    </div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content fade-in">
+    <div class="hero-badge"><span>📢 Admissions Open 2025–26 &nbsp;|&nbsp; CBSE Classes 1–10</span></div>
+    <h1>Shaping Young Minds for a <em>Brighter Future</em></h1>
+    <p>CBSE Pattern School (Class 1–10) with Integrated Coaching, Navodaya & Military Prep, and a Modern Library — all under one roof in Muzaffarpur, Bihar.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary">Apply for Admission</a>
+      <a href="#academics" class="btn-outline">Explore Programs</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num" data-target="500" data-suffix="+">0+</div><div class="label">Students</div></div>
+      <div class="hero-stat"><div class="num" data-target="98" data-suffix="%">0%</div><div class="label">Pass Rate</div></div>
+      <div class="hero-stat"><div class="num" data-target="4.5" data-decimal="true">0</div><div class="label">⭐ Google Rating</div></div>
+      <div class="hero-stat"><div class="num" data-target="12" data-suffix="+">0+</div><div class="label">Years of Excellence</div></div>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>Scroll</span><div class="scroll-dot"></div></div>
+</section>
+
+<!-- BANNER -->
+<div class="banner">
+  <p>🎉 Admissions Open 2025–26 &nbsp;|&nbsp; CBSE Classes 1–10 &nbsp;|&nbsp; ⚡ Limited Seats Available</p>
+  <a href="#contact">Enroll Your Child Today →</a>
+</div>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-layout">
+    <div class="about-img-grid fade-left">
+      <div class="aig-main">
+        <div class="img-wrap">
+          <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">👨‍🎓</span><span class="ph-text">Students</span></div>
+          <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=900&q=80" alt="Students in classroom" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'👨‍🎓','Students')"/>
+        </div>
+        <div class="about-badge"><div class="num">4.5 ⭐</div><div class="txt">Google Rating</div></div>
+      </div>
+      <div class="aig-sub">
+        <div class="img-wrap">
+          <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">📚</span><span class="ph-text">Library</span></div>
+          <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=500&q=80" alt="Library books" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'📚','Library')"/>
+        </div>
+      </div>
+      <div class="aig-sub">
+        <div class="img-wrap">
+          <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">👩‍🏫</span><span class="ph-text">Teaching</span></div>
+          <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?w=500&q=80" alt="Teacher with students" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'👩‍🏫','Faculty')"/>
+        </div>
+      </div>
+    </div>
+    <div class="fade-right">
+      <div class="stag">About Us</div>
+      <h2 class="stitle">The Matrix Academy & <em>Matrix Library</em></h2>
+      <p class="ssub" style="margin-bottom:22px;">Located in Anuradha Market, Alkapuri Colony, Bishundatpur, Muzaffarpur — a full CBSE school with coaching and library under one roof.</p>
+      <div class="vm-grid">
+        <div class="vm-card"><h4>🌟 Our Vision</h4><p>Nurture disciplined, knowledgeable young minds ready to lead tomorrow's world.</p></div>
+        <div class="vm-card"><h4>🎯 Our Mission</h4><p>Quality CBSE education, integrated coaching, and a nurturing environment for every child.</p></div>
+      </div>
+      <div class="why-list">
+        <div class="why-item"><div class="check">✓</div>CBSE Pattern curriculum from Class 1 to Class 10</div>
+        <div class="why-item"><div class="check">✓</div>Integrated coaching support alongside school education</div>
+        <div class="why-item"><div class="check">✓</div>Navodaya & Military School entrance preparation</div>
+        <div class="why-item"><div class="check">✓</div>Discipline-focused academic environment</div>
+        <div class="why-item"><div class="check">✓</div>Modern library open daily from 6:00 AM</div>
+        <div class="why-item"><div class="check">✓</div>Experienced faculty with proven track record</div>
+      </div>
+      <br>
+      <a href="#contact" class="btn-primary" style="font-size:14px;padding:13px 26px;">Enquire About Admission</a>
+    </div>
+  </div>
+</section>
+
+<!-- HIGHLIGHTS -->
+<section class="highlights" id="highlights">
+  <div style="text-align:center;">
+    <div class="stag">Why Choose Us</div>
+    <h2 class="stitle">Everything Your Child <em>Needs</em></h2>
+    <p class="ssub" style="margin:0 auto 48px;">A complete educational ecosystem — school, coaching, and library — designed to give every student the best foundation.</p>
+  </div>
+  <div class="hl-grid fade-in">
+    <div class="hl-card"><div class="hl-icon">🎓</div><h3>CBSE Pattern School</h3><p>Full school education from Class 1 to 10 with CBSE curriculum, smart learning tools, and regular assessments.</p></div>
+    <div class="hl-card"><div class="hl-icon">📘</div><h3>Expert Coaching</h3><p>Dedicated coaching for Class 7–10 students with focus on competitive exam prep and deep conceptual clarity.</p></div>
+    <div class="hl-card"><div class="hl-icon">🎯</div><h3>Navodaya & Military Prep</h3><p>Specialized JNV and Sainik School entrance preparation with expert guidance and regular mock tests.</p></div>
+    <div class="hl-card"><div class="hl-icon">📚</div><h3>Modern Library</h3><p>Fully equipped library with study cabins, reading halls, and wide book collection from 6:00 AM daily.</p></div>
+    <div class="hl-card"><div class="hl-icon">👩‍🏫</div><h3>Experienced Faculty</h3><p>Teachers who combine subject mastery with a genuine passion for nurturing young talent.</p></div>
+    <div class="hl-card"><div class="hl-icon">🏅</div><h3>Proven Results</h3><p>Consistent top results in board exams and competitive entrance tests, year after year.</p></div>
+  </div>
+</section>
+
+<!-- ACADEMICS -->
+<section class="academics" id="academics">
+  <div class="academics-header">
+    <div>
+      <div class="stag">Academics</div>
+      <h2 class="stitle" style="color:var(--white);">CBSE School <em>Classes 1–10</em></h2>
+    </div>
+    <p style="color:rgba(255,255,255,0.48);font-size:14px;max-width:310px;line-height:1.7;">Complete school curriculum building strong foundations from Class 1 through Class 10 board exams.</p>
+  </div>
+  <div class="classes-grid fade-in">
+    <div class="class-card">
+      <div class="class-img-box">
+        <div class="img-wrap">
+          <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">🧒</span><span class="ph-text">Primary</span></div>
+          <img src="https://images.unsplash.com/photo-1551966775-a4ddc8df052b?w=600&q=80" alt="Primary school children" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'🧒','Primary School')"/>
+        </div>
+        <div class="class-img-overlay"></div>
+        <div class="grade-badge">Primary School</div>
+      </div>
+      <div class="class-body">
+        <h3>Class 1 – 5</h3>
+        <p>Building strong foundational skills in language, maths, science and social studies through engaging, hands-on learning.</p>
+        <ul class="class-features">
+          <li>CBSE Pattern Curriculum</li><li>Activity-Based Learning</li><li>Regular Progress Reports</li><li>English & Hindi Medium</li>
+        </ul>
+      </div>
+    </div>
+    <div class="class-card">
+      <div class="class-img-box">
+        <div class="img-wrap">
+          <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">🧑‍🎓</span><span class="ph-text">Middle School</span></div>
+          <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80" alt="Middle school students" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'🧑‍🎓','Middle School')"/>
+        </div>
+        <div class="class-img-overlay"></div>
+        <div class="grade-badge">Middle School</div>
+      </div>
+      <div class="class-body">
+        <h3>Class 6 – 8</h3>
+        <p>Deepening conceptual understanding with academic rigor, critical thinking, and competitive exam foundations.</p>
+        <ul class="class-features">
+          <li>Subject-Wise Expert Teachers</li><li>Weekly Tests & Assessments</li><li>Science & Maths Focus</li><li>Competitive Exam Foundation</li>
+        </ul>
+      </div>
+    </div>
+    <div class="class-card">
+      <div class="class-img-box">
+        <div class="img-wrap">
+          <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">📝</span><span class="ph-text">Secondary</span></div>
+          <img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600&q=80" alt="Secondary school board prep" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'📝','Secondary School')"/>
+        </div>
+        <div class="class-img-overlay"></div>
+        <div class="grade-badge">Secondary School</div>
+      </div>
+      <div class="class-body">
+        <h3>Class 9 – 10</h3>
+        <p>Intensive board exam preparation with revision cycles, mock tests, and individual performance tracking for top results.</p>
+        <ul class="class-features">
+          <li>Board Exam Preparation</li><li>Sample Paper Practice</li><li>Doubt-Clearing Sessions</li><li>Parent Progress Meetings</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COACHING -->
+<section class="coaching" id="coaching">
+  <div>
+    <div class="stag">Coaching Programs</div>
+    <h2 class="stitle">Beyond School — <em>Win Competitions</em></h2>
+    <p class="ssub">Specialized coaching for students who want to excel in Navodaya, Military School, and board exams.</p>
+  </div>
+  <div class="coaching-layout fade-in">
+    <div class="coaching-img-col">
+      <div class="coaching-img-main">
+        <div class="img-wrap">
+          <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">📖</span><span class="ph-text">Coaching</span></div>
+          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=700&q=80" alt="Students in coaching" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'📖','Coaching')"/>
+        </div>
+        <div class="ci-overlay"></div>
+        <div class="ci-label">Expert Coaching</div>
+      </div>
+      <div class="coaching-img-pair">
+        <div class="ci-img-box">
+          <div class="img-wrap">
+            <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">🎯</span><span class="ph-text">Navodaya Prep</span></div>
+            <img src="https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=400&q=80" alt="Competitive exam preparation" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'🎯','Navodaya Prep')"/>
+          </div>
+        </div>
+        <div class="ci-img-box">
+          <div class="img-wrap">
+            <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">✏️</span><span class="ph-text">Study</span></div>
+            <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&q=80" alt="Students studying" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'✏️','Study Hall')"/>
+          </div>
+        </div>
+      </div>
+      <div class="coaching-caption">
+        <div class="ico">🎯</div>
+        <div><h4>Navodaya & Military Prep</h4><p>Specialized batches with study material & mock tests</p></div>
+      </div>
+    </div>
+    <div>
+      <div class="coaching-cards">
+        <div class="coaching-card feat">
+          <div class="cc-icon">🎯</div>
+          <div class="cc-content"><h4>Navodaya Vidyalaya Preparation</h4><p>Complete JNV entrance exam prep with model papers, mock tests, and strategy sessions by expert faculty.</p><span class="cc-tag">Most Popular</span></div>
+        </div>
+        <div class="coaching-card">
+          <div class="cc-icon">🪖</div>
+          <div class="cc-content"><h4>Military / Sainik School Entrance</h4><p>Specialized coaching for RIMC, Sainik School, and Military School entrance exams with academic prep.</p></div>
+        </div>
+        <div class="coaching-card">
+          <div class="cc-icon">📊</div>
+          <div class="cc-content"><h4>Class 7–10 Academic Coaching</h4><p>Intensive subject coaching for Maths, Science, and English to boost scores and build exam confidence.</p></div>
+        </div>
+      </div>
+      <div style="background:var(--navy);border-radius:16px;padding:22px;margin-top:18px;">
+        <div class="batch-info">
+          <div class="bi-box"><p>Batch Size</p><span>Max 20 Students</span></div>
+          <div class="bi-box"><p>Timing</p><span>From 6:00 AM</span></div>
+        </div>
+        <button class="enroll-btn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Enroll Now — Limited Seats Available</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIBRARY -->
+<section class="library" id="library">
+  <div class="library-layout">
+    <div class="fade-left">
+      <div class="stag">Matrix Library</div>
+      <h2 class="stitle">A Space Built for <em>Deep Learning</em></h2>
+      <p class="ssub" style="margin-bottom:26px;">A complete learning environment encouraging focus, reading, and self-study from 6 AM every morning.</p>
+      <div class="lib-feats">
+        <div class="lib-feat"><div class="icon">🔇</div><h4>Silent Study Zone</h4><p>Dedicated quiet zones for focused revision without distractions.</p></div>
+        <div class="lib-feat"><div class="icon">🪑</div><h4>Personal Study Cabins</h4><p>Individual reading cabins for private, focused study time.</p></div>
+        <div class="lib-feat"><div class="icon">📖</div><h4>Wide Book Collection</h4><p>Textbooks, reference books, competitive guides and GK books.</p></div>
+        <div class="lib-feat"><div class="icon">🕕</div><h4>Daily from 6:00 AM</h4><p>Extra productive hours before school every morning.</p></div>
+        <div class="lib-feat"><div class="icon">📰</div><h4>Newspapers & Magazines</h4><p>Daily newspapers and educational magazines for current affairs.</p></div>
+        <div class="lib-feat"><div class="icon">🏛️</div><h4>Spacious Reading Hall</h4><p>Large, well-ventilated hall for comfortable group study.</p></div>
+      </div>
+      <div class="lib-stats-row">
+        <div class="lib-stat"><div class="n">1000+</div><div class="l">Books</div></div>
+        <div class="lib-stat"><div class="n">6 AM</div><div class="l">Opens</div></div>
+        <div class="lib-stat"><div class="n">50+</div><div class="l">Seats</div></div>
+        <div class="lib-stat"><div class="n">Daily</div><div class="l">News</div></div>
+      </div>
+    </div>
+    <div class="lib-img-stack fade-right">
+      <div class="lib-img-main">
+        <div class="img-wrap">
+          <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">📚</span><span class="ph-text">Library Reading Hall</span></div>
+          <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&q=80" alt="Library reading hall" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'📚','Library Hall')"/>
+        </div>
+      </div>
+      <div class="lib-img-sub">
+        <div class="img-wrap">
+          <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">📕</span><span class="ph-text">Books</span></div>
+          <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500&q=80" alt="Library books on shelf" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'📕','Book Shelf')"/>
+        </div>
+      </div>
+      <div class="lib-img-sub">
+        <div class="img-wrap">
+          <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">🧑‍💻</span><span class="ph-text">Study</span></div>
+          <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&q=80" alt="Student studying in library" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'🧑‍💻','Study Cabin')"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery-sec" id="gallery">
+  <div style="text-align:center;">
+    <div class="stag" style="color:var(--gold);">Campus Gallery</div>
+    <h2 class="stitle" style="color:var(--white);">Our School <em>Campus & Activities</em></h2>
+    <p style="color:rgba(255,255,255,0.48);font-size:15px;max-width:480px;margin:0 auto;">A glimpse into life at The Matrix Academy — classrooms, library, coaching and activities.</p>
+  </div>
+  <div class="gallery-grid fade-in">
+    <div class="g-item tall">
+      <div class="img-wrap"><div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">🏫</span><span class="ph-text">Classrooms</span></div>
+        <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&q=80" alt="Modern classroom" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'🏫','Classroom')"/></div>
+      <div class="g-hover"><span>+</span></div><div class="g-label">Modern Classrooms</div>
+    </div>
+    <div class="g-item">
+      <div class="img-wrap"><div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">👨‍🎓</span><span class="ph-text">Students</span></div>
+        <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&q=80" alt="Students in class" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'👨‍🎓','Students')"/></div>
+      <div class="g-hover"><span>+</span></div><div class="g-label">Interactive Learning</div>
+    </div>
+    <div class="g-item">
+      <div class="img-wrap"><div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">📚</span><span class="ph-text">Library</span></div>
+        <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&q=80" alt="Library" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'📚','Library')"/></div>
+      <div class="g-hover"><span>+</span></div><div class="g-label">Matrix Library</div>
+    </div>
+    <div class="g-item">
+      <div class="img-wrap"><div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">🤝</span><span class="ph-text">Group Study</span></div>
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80" alt="Group study" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'🤝','Group Study')"/></div>
+      <div class="g-hover"><span>+</span></div><div class="g-label">Group Study Sessions</div>
+    </div>
+    <div class="g-item">
+      <div class="img-wrap"><div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">👩‍🏫</span><span class="ph-text">Faculty</span></div>
+        <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?w=600&q=80" alt="Teacher with students" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'👩‍🏫','Faculty')"/></div>
+      <div class="g-hover"><span>+</span></div><div class="g-label">Expert Faculty</div>
+    </div>
+    <div class="g-item tall">
+      <div class="img-wrap"><div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">✏️</span><span class="ph-text">Activities</span></div>
+        <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=80" alt="Student activities" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'✏️','Activities')"/></div>
+      <div class="g-hover"><span>+</span></div><div class="g-label">Student Activities</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="results">
+  <div style="text-align:center;">
+    <div class="stag">Results & Reviews</div>
+    <h2 class="stitle">Trusted by <em>Families</em> Across Muzaffarpur</h2>
+  </div>
+  <div class="rating-banner fade-in">
+    <div class="img-wrap">
+      <div class="img-placeholder"><div class="img-shimmer"></div></div>
+      <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&q=50" alt="Students celebrating results" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'🎉','Results')"/>
+    </div>
+    <div class="rating-overlay"></div>
+    <div class="rating-content">
+      <div class="rating-big">4.5</div>
+      <div class="rating-info">
+        <div class="stars">★★★★½</div>
+        <h4>Rated Excellent on Google</h4>
+        <p>Hundreds of parents and students have rated The Matrix Academy — praised for teaching quality, discipline, and results.</p>
+      </div>
+    </div>
+  </div>
+  <div class="testi-grid fade-in">
+    <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-text">"My son was selected in Navodaya Vidyalaya after studying at Matrix Academy. The coaching is exceptionally well structured and teachers are very dedicated."</p><div class="testi-author"><div class="testi-av">R</div><div><div class="testi-name">Ramesh Kumar</div><div class="testi-role">Parent, Class 6 Student</div></div></div></div>
+    <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-text">"Excellent school with very experienced teachers. My daughter scored 95% in Class 10 boards. The regular tests and personal attention really helped her."</p><div class="testi-author"><div class="testi-av">S</div><div><div class="testi-name">Sunita Devi</div><div class="testi-role">Parent, Class 10 Student</div></div></div></div>
+    <div class="testi-card"><div class="testi-stars">★★★★☆</div><p class="testi-text">"The library facility is amazing. My child spends early mornings there before school. The study cabins have really improved his focus and study habits."</p><div class="testi-author"><div class="testi-av">A</div><div><div class="testi-name">Amit Sharma</div><div class="testi-role">Parent, Library Member</div></div></div></div>
+    <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-text">"Best coaching institute for Navodaya preparation in Muzaffarpur. The mock tests and study material are top class. Highly recommend to all parents."</p><div class="testi-author"><div class="testi-av">P</div><div><div class="testi-name">Priya Singh</div><div class="testi-role">Parent, Coaching Student</div></div></div></div>
+    <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-text">"The teachers genuinely care about each child. My son improved from average to top of his class in just one year. The individual attention is truly unmatched."</p><div class="testi-author"><div class="testi-av">V</div><div><div class="testi-name">Vijay Prasad</div><div class="testi-role">Parent, Class 8 Student</div></div></div></div>
+    <div class="testi-card"><div class="testi-stars">★★★★☆</div><p class="testi-text">"Good school with proper CBSE curriculum. The academy truly believes in all-round development. My children have improved in both academics and discipline."</p><div class="testi-author"><div class="testi-av">M</div><div><div class="testi-name">Meena Kumari</div><div class="testi-role">Parent, Two Children Enrolled</div></div></div></div>
+  </div>
+</section>
+
+<!-- NOTICE -->
+<section class="notice" id="notice">
+  <div style="text-align:center;">
+    <div class="stag">Notice Board</div>
+    <h2 class="stitle">Latest <em>Announcements</em></h2>
+  </div>
+  <div class="notice-layout fade-in">
+    <div class="notice-sidebar">
+      <h3>📢 Notices</h3>
+      <div class="n-item"><div class="n-dot"></div><div><p>Admissions open for Class 1–10, session 2025–26. Limited seats.</p><span>01 Apr 2025</span></div></div>
+      <div class="n-item"><div class="n-dot"></div><div><p>New batch for Navodaya preparation starting 10th April.</p><span>28 Mar 2025</span></div></div>
+      <div class="n-item"><div class="n-dot"></div><div><p>Annual result ceremony — parents invited on 5th April.</p><span>20 Mar 2025</span></div></div>
+      <div class="n-item"><div class="n-dot"></div><div><p>Library membership open for new students. Front desk registration.</p><span>15 Mar 2025</span></div></div>
+      <div class="n-item"><div class="n-dot"></div><div><p>Military school coaching batch — registration starts now.</p><span>10 Mar 2025</span></div></div>
+    </div>
+    <div class="events-grid">
+      <div class="ev-card"><div class="ev-date"><div class="day">05</div><div class="mon">Apr</div></div><h4>Annual Results Ceremony</h4><p>Top performers from Class 5, 8 and 10 felicitated with parents.</p></div>
+      <div class="ev-card"><div class="ev-date"><div class="day">10</div><div class="mon">Apr</div></div><h4>New Coaching Batch Starts</h4><p>Navodaya and Military School coaching new batch commences.</p></div>
+      <div class="ev-card"><div class="ev-date"><div class="day">15</div><div class="mon">Apr</div></div><h4>Parent-Teacher Meeting</h4><p>Quarterly PTM for all classes — review progress with teachers.</p></div>
+      <div class="ev-card"><div class="ev-date"><div class="day">20</div><div class="mon">Apr</div></div><h4>Mock Test — Class 9 & 10</h4><p>Full syllabus mock test for board students with detailed report.</p></div>
+      <div class="ev-card"><div class="ev-date"><div class="day">25</div><div class="mon">Apr</div></div><h4>Library Reading Week</h4><p>Special reading initiative with prizes for most books read.</p></div>
+      <div class="ev-card"><div class="ev-date"><div class="day">30</div><div class="mon">Apr</div></div><h4>Admission Last Date</h4><p>Final date for form submission for session 2025–26.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="img-wrap">
+    <img src="https://images.unsplash.com/photo-1564981797816-1043664bf78d?w=1400&q=50" alt="" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'','')"/>
+  </div>
+  <div style="text-align:center;position:relative;z-index:1;">
+    <div class="stag">Admission & Contact</div>
+    <h2 class="stitle" style="color:var(--white);">Enroll Your Child <em>Today</em></h2>
+    <p class="ssub" style="margin:0 auto;">Seats are limited. Fill the form and our team will reach out within 24 hours.</p>
+  </div>
+  <div class="contact-layout fade-in">
+    <div class="contact-form">
+      <h3>Admission Enquiry Form</h3>
+      <p class="sub">Fill in details and we'll call you back shortly.</p>
+      <div class="form-row">
+        <div class="fg"><label>Student Name</label><input type="text" id="stName" placeholder="Enter full name"/></div>
+        <div class="fg"><label>Parent Name</label><input type="text" id="parName" placeholder="Parent / Guardian name"/></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Class Applying For</label><select id="classApply"><option value="">Select Class</option><option>Class 1</option><option>Class 2</option><option>Class 3</option><option>Class 4</option><option>Class 5</option><option>Class 6</option><option>Class 7</option><option>Class 8</option><option>Class 9</option><option>Class 10</option></select></div>
+        <div class="fg"><label>Program Interest</label><select id="progInterest"><option value="">Select Program</option><option>School Admission Only</option><option>Coaching Program</option><option>Navodaya Preparation</option><option>Military School Prep</option><option>Library Membership</option><option>School + Coaching Both</option></select></div>
+      </div>
+      <div class="fg"><label>Phone Number</label><input type="tel" id="phone" placeholder="+91 XXXXX XXXXX"/></div>
+      <div class="fg"><label>Address / Area</label><input type="text" id="address" placeholder="Your area in Muzaffarpur"/></div>
+      <button class="submit-btn" onclick="submitForm()">Submit Enquiry — We'll Call You Back</button>
+      <div class="success-msg" id="successMsg">✅ Enquiry submitted! Our team will call you within 24 hours.</div>
+    </div>
+    <div class="contact-info">
+      <div class="ci-block">
+        <h4>📞 Contact Information</h4>
+        <div class="ci-item"><div class="ci-ico">📍</div><div><p>Address</p><span>Anuradha Market, Alkapuri Colony, Bishundatpur, Muzaffarpur, Bihar 843113</span></div></div>
+        <div class="ci-item"><div class="ci-ico">📱</div><div><p>Phone</p><span>+91 73669 92008</span></div></div>
+        <div class="ci-item"><div class="ci-ico">🕕</div><div><p>Timing</p><span>Opens at 6:00 AM — Mon to Sat</span></div></div>
+        <div class="ci-item"><div class="ci-ico">⭐</div><div><p>Google Rating</p><span>4.5 Stars — Rated Excellent</span></div></div>
+      </div>
+      <div class="map-box" onclick="window.open('https://maps.google.com/?q=Anuradha+Market,Alkapuri+Colony,Bishundatpur,Muzaffarpur,Bihar+843113','_blank')">
+        <div class="img-wrap">
+          <div class="img-placeholder"><div class="img-shimmer"></div><span class="ph-icon">🗺️</span></div>
+          <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=60" alt="Map" loading="lazy" onload="imgLoaded(this)" onerror="imgError(this,'🗺️','Map')"/>
+        </div>
+        <div class="map-overlay"><div class="mico">🗺️</div><p>Anuradha Market, Alkapuri Colony</p><a href="#">Open in Google Maps →</a></div>
+      </div>
+      <div class="qc">
+        <a href="tel:+917366992008" class="qcb call">📞 Call Now</a>
+        <a href="https://wa.me/917366992008?text=Hello%2C%20I%20want%20to%20know%20about%20admission%20at%20The%20Matrix%20Academy" target="_blank" class="qcb wa">💬 WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <a href="#home" class="logo" style="display:inline-flex;margin-bottom:12px;">
+        <div class="logo-icon"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxIREhUTExIVFhUVGRcYGBYYFxgZFhgYFxkaGRcfGBghHSghGSIlHBUaITEjJSorLi4wFx8zODcsNygtLisBCgoKDg0OGxAQGy0mHyUuMS0tLS0tLS0tLy0tLS0tLS8tLS0tLS0tLS0tLS0tLS0tLS0tLS0vLS0tLS0tLS0tLf/AABEIAOEA4QMBEQACEQEDEQH/xAAcAAEAAgMBAQEAAAAAAAAAAAAABQYCBAcDAQj/xABHEAACAQMDAQUEBwQHBgYDAAABAgMABBEFEiExBhNBUWEHIjKBFCNCUnGRoTNictEkU3OCkrHBNGOTorLSFUNEwtPxFyU1/8QAGgEBAAMBAQEAAAAAAAAAAAAAAAECAwQFBv/EADQRAAIBAgUBBQgCAQUBAAAAAAABAgMRBBIhMUFRBSJhcYETMkKRocHR8LHhUiMkYnLxBv/aAAwDAQACEQMRAD8A7jQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUAoBQCgFAKAUB//Z" alt="The Matrix Academy Logo" loading="eager"/></div>
+        <div class="logo-text"><div class="name">The Matrix Academy</div><div class="sub">& Matrix Library</div></div>
+      </a>
+      <p class="footer-about">CBSE School (Class 1–10), Coaching for Class 7–10, Navodaya & Military Prep, and Modern Library in Muzaffarpur, Bihar.</p>
+      <div class="social-row">
+        <a href="#" class="social-btn">📘</a><a href="#" class="social-btn">📸</a>
+        <a href="https://wa.me/917366992008" class="social-btn">💬</a>
+        <a href="tel:+917366992008" class="social-btn">📞</a>
+      </div>
+    </div>
+    <div>
+      <h5>Quick Links</h5>
+      <ul><li><a href="#about">About Us</a></li><li><a href="#academics">Academics</a></li><li><a href="#coaching">Coaching</a></li><li><a href="#library">Library</a></li><li><a href="#gallery">Gallery</a></li><li><a href="#contact">Admissions</a></li></ul>
+    </div>
+    <div>
+      <h5>Programs</h5>
+      <ul><li><a href="#academics">Primary (1–5)</a></li><li><a href="#academics">Middle (6–8)</a></li><li><a href="#academics">Secondary (9–10)</a></li><li><a href="#coaching">Class 7–10 Coaching</a></li><li><a href="#coaching">Navodaya Preparation</a></li><li><a href="#coaching">Military School Prep</a></li></ul>
+    </div>
+    <div>
+      <h5>Contact</h5>
+      <ul><li><a href="#">Anuradha Market, Alkapuri Colony</a></li><li><a href="#">Bishundatpur, Muzaffarpur</a></li><li><a href="#">Bihar 843113</a></li><li><a href="tel:+917366992008">+91 73669 92008</a></li><li><a href="#">Opens 6:00 AM daily</a></li></ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 <span>The Matrix Academy & Matrix Library</span>. All rights reserved.</p>
+    <p>Muzaffarpur, Bihar — CBSE School | Coaching | Library</p>
+  </div>
+</footer>
+
+<a class="whatsapp-float" href="https://wa.me/917366992008?text=Hello%2C%20I%20want%20to%20know%20about%20admission%20at%20The%20Matrix%20Academy" target="_blank">💬</a>
+
+<script>
+/* ── IMAGE LOADING ENGINE ── */
+function imgLoaded(img) {
+  img.classList.add('loaded');
+  const wrap = img.closest('.img-wrap');
+  if (!wrap) return;
+  const ph = wrap.querySelector('.img-placeholder');
+  const shimmer = wrap.querySelector('.img-shimmer');
+  if (ph) ph.classList.add('hidden');
+  if (shimmer) shimmer.classList.add('done');
+}
+
+function imgError(img, icon, label) {
+  img.classList.add('error-state');
+  const wrap = img.closest('.img-wrap');
+  if (!wrap) return;
+  const ph = wrap.querySelector('.img-placeholder');
+  const shimmer = wrap.querySelector('.img-shimmer');
+  if (shimmer) shimmer.classList.add('done');
+  if (ph) {
+    ph.style.opacity = '1';
+    ph.style.pointerEvents = 'auto';
+    const ico = ph.querySelector('.ph-icon');
+    const txt = ph.querySelector('.ph-text');
+    if (ico && icon) ico.textContent = icon;
+    if (txt && label) txt.textContent = label;
+    // Remove shimmer on error
+    const s = ph.querySelector('.img-shimmer');
+    if (s) s.remove();
+  }
+  // Try loading a backup image from a different Unsplash collection
+  if (!img.dataset.retried) {
+    img.dataset.retried = '1';
+    const backups = {
+      '🏫': 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&q=80',
+      '👨‍🎓': 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&q=80',
+      '📚': 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=700&q=80',
+      '👩‍🏫': 'https://images.unsplash.com/photo-1588072432836-e10032774350?w=600&q=80',
+    };
+    if (backups[icon]) {
+      setTimeout(() => { img.src = backups[icon]; }, 1000);
+    }
+  }
+}
+
+// Trigger load for already-cached images
+document.querySelectorAll('.img-wrap img').forEach(img => {
+  if (img.complete && img.naturalWidth > 0) imgLoaded(img);
+  else if (img.complete) imgError(img, img.closest('.img-placeholder')?.querySelector('.ph-icon')?.textContent || '🖼️', 'Image');
+});
+
+/* ── SCROLL ANIMATIONS ── */
+const obsOpts = {threshold: 0.1};
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, obsOpts);
+document.querySelectorAll('.fade-in,.fade-left,.fade-right').forEach(el => obs.observe(el));
+
+/* ── COUNTERS ── */
+function animateCounter(el) {
+  const target = parseFloat(el.dataset.target);
+  const isDecimal = el.dataset.decimal === 'true';
+  const suffix = el.dataset.suffix || '';
+  const duration = 2000;
+  const start = performance.now();
+  function update(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = (isDecimal ? (target * eased).toFixed(1) : Math.floor(target * eased)) + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+    else el.textContent = (isDecimal ? target.toFixed(1) : target) + suffix;
+  }
+  requestAnimationFrame(update);
+}
+const cObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !e.target.dataset.animated) {
+      e.target.dataset.animated = '1';
+      animateCounter(e.target);
+    }
+  });
+}, {threshold: 0.5});
+document.querySelectorAll('[data-target]').forEach(el => cObs.observe(el));
+
+/* ── MOBILE MENU ── */
+function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
+
+/* ── FORM ── */
+function submitForm() {
+  const name = document.getElementById('stName').value;
+  const phone = document.getElementById('phone').value;
+  if (!name.trim() || !phone.trim()) { alert('Please fill in at least the student name and phone number.'); return; }
+  document.getElementById('successMsg').style.display = 'block';
+  ['stName','parName','phone','address'].forEach(id => document.getElementById(id).value = '');
+  ['classApply','progInterest'].forEach(id => document.getElementById(id).value = '');
+  setTimeout(() => { document.getElementById('successMsg').style.display = 'none'; }, 5000);
+}
+
+/* ── NAV SCROLL ── */
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').style.background = window.scrollY > 50 ? 'rgba(10,22,40,0.99)' : 'rgba(10,22,40,0.97)';
+});
+</script>
+</body>
+</html>
